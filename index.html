@@ -17,6 +17,7 @@
 			<a href="index.html">Link2</a>
 		</div>
 	</div> -->
+	<div id="bootScreenOverlay"></div>
 	
 	<div class="arcadeFrame">
 		<div class="arcadeTitle">
@@ -25,12 +26,20 @@
 		
 		<div class="gameWindow">
 			<div class="skyback" id="skyback"></div> <!-- Add skyback here -->
+			
 			<img src="assets/Frank_Motion1.png" id="playerImg"/>
-			<img src="assets/kitty.png" id="kittyImg" />
 			<div class="startOverlay" id="startOverlay">
       			<div class="startText">ENTER 1 TOKEN TO START</div>
       			<button id="startButton">~ INSERT TOKEN ~</button>
     		</div>
+    		
+    		<div id="deathOverlay" class="overlay">
+  				<div class="deathContent">
+    				<h1>YOU DIED</h1>
+    				<button id="retryButton">Return to Start</button>
+  				</div>
+			</div>
+    		
 			<div class="ground" id="ground"></div>
 		</div>
 	</div>

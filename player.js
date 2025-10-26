@@ -216,8 +216,9 @@ document.addEventListener('DOMContentLoaded', function() {
       currentImage = 'Frank_Motion1.png';
     }
     playerImg.src = `assets/${currentImage}`;
-  }, 1000); // Change image every 1 second (1000 milliseconds)
+  }, 500); // Change image every 500 milliseconds
 });
+
 
 
 

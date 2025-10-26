@@ -1,0 +1,133 @@
+/*Import font*/
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+body {
+	background-color: #1C0221;
+	font-family: 'Press Start 2P', monospace;
+	text-align: center;
+	color: white;
+	display: flex;
+  	justify-content: center;
+  	align-items: center;
+}
+
+/* .topnav {
+  background-color:#E1DBFB; 
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.topnav .links {
+	text-align: center;
+}
+.topnav .links a {
+	padding: 7px;
+	color: white;
+} */
+
+.gameWindow {
+	position: relative;
+	width: 90vw;
+	height: 60vh;
+	max-width: 900px;
+	max-height: 450px;
+	background-color:#0A2463;
+	margin: auto;
+	margin-top: 50px;
+	overflow: hidden;
+	border-radius: 10px;
+	box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+	animation: glow 2s infinite alternate;
+}
+
+
+
+.arcadeFrame .arcadeTitle {
+	padding-top: 20px;
+	color: white;
+  	font-size: 20px;
+  	text-shadow: 2px 2px #ff0077;
+  	margin-bottom: 20px;
+  	text-align: center;
+}
+
+.startOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+.startText {
+  color: #ffdd00;
+  font-size: 12px;
+  text-shadow: 2px 2px #ff0000;
+  animation: flicker 1s infinite;
+  margin-bottom: 20px;
+}
+
+#startButton {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  padding: 10px 20px;
+  background: gold;
+  border: 2px solid #ffaa00;
+  color: #000;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 #ff8800;
+  transition: all 0.1s steps(2, end);
+}
+
+#startButton:hover {
+  background: #ffaa00;
+  box-shadow: 4px 4px 0 #ff7700;
+}
+
+@keyframes flicker {
+  0%, 19%, 21%, 50%, 55%, 100% { opacity: 1; }
+  20%, 20.5%, 54%, 54.5% { opacity: 0.5; }
+}
+
+@keyframes glow {
+   0% { box-shadow: 0 0 35px #00ffea; }
+  20% { box-shadow: 0 0 40px #00ffea; }
+  40% { box-shadow: 0 0 38px #00ffea; }
+  60% { box-shadow: 0 0 42px #00ffea; }
+  80% { box-shadow: 0 0 37px #00ffea; }
+  100% { box-shadow: 0 0 40px #00ffea; }
+}
+
+.gameWindow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: 
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.05) 0px,
+      rgba(255, 255, 255, 0.05) 1px,
+      rgba(0, 0, 0, 0.05) 2px,
+      rgba(0, 0, 0, 0.05) 3px
+    );
+  mix-blend-mode: overlay;
+  opacity: 0.3;
+}
+
+#playerImg {
+	position: absolute;
+	bottom: 0;
+	width: 25vw;
+	height: 50vh;
+	max-width: 50px;
+	max-height: 100px;
+	left:80px;
+	image-rendering: pixelated;
+}
+

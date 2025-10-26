@@ -1,7 +1,6 @@
-# space-cow-boy
-This is a project for Rowdy Hacks Hackathon.
-
 # Space Cowboy Runner
+
+This is a project for Rowdy Hacks Hackathon 2025.
 
 A retro-style endless runner game inspired by the Chrome Dino, but with a space cowboy twist! Dodge asteroids, space debris, and rogue robots while riding your trusty rocket-powered steed across the cosmos.
 
@@ -20,16 +19,21 @@ A retro-style endless runner game inspired by the Chrome Dino, but with a space 
 
 ## Technologies Used
 
-*   [List the technologies you used here, e.g., HTML, CSS, JavaScript]
+*   Languages: HTML, CSS, Javascript
+*   Programs: LibreSprite
 
 ## Getting Started
 
 1.  Open the `index.html` file in your browser.
+2.  experience greatness and overwhelming sense of joy.
 
 ## Credits
 
-*   [List any contributors or assets used]
+Jessica
+Andrea
+Hunter
+Baliul
 
 ## License
 
-[Specify the license under which your game is released, e.g., MIT License]
+MIT Linense

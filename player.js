@@ -374,16 +374,23 @@ window.addEventListener('load', () => {
 
 playerImg.style.visibility = "hidden";
 gameWindow.style.animationPlayState = "paused";
+const introAudio = document.getElementById('introAudio');
 
 enableSoundButton.addEventListener('click', () => {
     
     soundOverlay.style.display = 'none';
     blackOverlay.style.display = 'hidden'; 
-
+	
     introVideo.style.display = 'block';
     introVideo.muted = false;
     introVideo.play();
-
+	
+	introAudio.loop = true;    // Ensure looping
+	setTimeout(() => {
+	        // Start looping audio at the same time as video would have been at that moment
+	        introAudio.currentTime = introVideo.currentTime; // sync positions
+	        introAudio.play();
+	    }, 90000);   
     
     gameStarted = false;
 

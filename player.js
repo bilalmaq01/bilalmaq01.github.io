@@ -80,3 +80,10 @@ startButton.addEventListener('click', () => {
     gameWindow.style.animation = 'glow 2s infinite alternate';
   }, 100); 
 });
+const ground = document.getElementById('ground');
+
+// Initialize the background position
+let backgroundPosition = 0;
+
+
+

@@ -2,15 +2,22 @@ const playerImg = document.querySelector('#playerImg');
 const gameWindow = document.querySelector('.gameWindow');
 const startButton = document.getElementById('startButton');
 const startOverlay = document.getElementById('startOverlay');
+const deathOverlay = document.getElementById('deathOverlay');
+const retryButton = document.getElementById('retryButton');
 
+
+let gameStarted = false;
 let jumpCount = 0;
 let playerBottom = 0;
 let velocityY = 0; 
-let originalHeight = playerImg.height;      
+let originalHeight = playerImg.height; 
+let scoreTimeoutId;
+let kittyTimeoutId;     
 const jumpStrength = 10; 
-const gravity = 0.15;     
+const gravity = 0.22;     
 const maxJumps = 2;
 const ceiling = gameWindow.offsetHeight - playerImg.offsetHeight;
+playerImg.style.transformOrigin = "bottom";
 
 let animationId; // Variable to store the animation frame ID
 let isGameOver = false; // Flag to prevent multiple collision triggers
@@ -32,7 +39,7 @@ function updateScore() {
   if (!isGameOver) {
     score += 1; // Increment score by 1
     scoreDisplay.textContent = `Score: ${score}`;
-    setTimeout(updateScore, 100); // Update score every 1/10th of a second
+    scoreTimeoutId = setTimeout(updateScore, 100); // Update score every 1/10th of a second
   }
 }
 
@@ -80,15 +87,38 @@ function checkCollision() {
     ) {
       // Collision detected
       isGameOver = true; // Set the flag to prevent further checks
-      cancelAnimationFrame(animationId); // Stop the game loop
-      startOverlay.style.display = 'flex'; // Show the start overlay
-
-      // Reload the page after a delay
-      setTimeout(() => {
-        window.location.reload(true); // Reload the page
-      }, 2000); // Restart the game after a delay
+	  gameStarted = false;
+	  
+	  cancelAnimationFrame(animationId); // Stop the game loop
+	  clearTimeout(scoreTimeoutId);
+	  clearTimeout(kittyTimeoutId);
+	  
+	  document.querySelectorAll('.kitty').forEach(k => k.remove()); //Stop kitty spawning
+	  
+	  deathOverlay.style.display = 'flex'; // Show the ending overlay
     }
   });
+}
+
+function returnToStart() {
+	//Switch overlays
+	deathOverlay.style.display = 'none';
+	startOverlay.style.display = 'flex';
+	
+	//Reset variables
+	isGameOver = false;
+	gameStarted = false;
+	resetPlayer();
+	resetScore();
+	
+	//Remove all kitties
+	document.querySelectorAll('.kitty').forEach(k => k.remove());
+	
+	cancelAnimationFrame(animationId);
+	clearTimeout(scoreTimeoutId);
+	clearTimeout(kittyTimeoutId);
+	
+	gameWindow.style.animation = '';
 }
 
 function gameLoop() {
@@ -123,6 +153,17 @@ gameLoop();
 
 //Listen for arrow up and spacebar key presses
 document.addEventListener('keydown', function(event) {
+	//Don't start game until user presses Insert Token button or spacebar
+	if(event.key === " " && !gameStarted && !isGameOver) {
+		startGame();
+	 } else if(event.key === " " && isGameOver) {
+	 	returnToStart();
+	 }
+
+	 if(!gameStarted) {
+		return;
+	 } 
+	
 	//Check that arrowup or spacebar was pressed and that max jumps is not surprassed 
 	if((event.key === "ArrowUp" || event.key === " ") && jumpCount < maxJumps) {
 		velocityY = jumpStrength;
@@ -131,11 +172,8 @@ document.addEventListener('keydown', function(event) {
 	
 	//Check that arrowdown was pressed
 	if(event.key === "ArrowDown") {
-		if(playerBottom > 0) {
-			velocityY -= jumpStrength * 1;
-		} else {
-			playerImg.height = originalHeight/2;
-		}
+		velocityY -= jumpStrength * 1;
+		playerImg.style.transform = "scaleY(0.5)";
 	}
 	
 });
@@ -143,24 +181,51 @@ document.addEventListener('keydown', function(event) {
 
 //Listen for key releases
 document.addEventListener('keyup', function(event) {
+	//If game hasn't started, block crouching commands
+	if(!gameStarted) {
+		return;
+	}
+	
 	//Check that arrowdown was released
 	if(event.key === "ArrowDown") {
-		playerImg.height = originalHeight;
+		playerImg.style.transform = "scaleY(1)";
 	}
 });
 
+
+function startGame() {
+	//Avoid double starting
+	if(gameStarted) {
+		return;
+	}
+	
+	gameStarted = true;
+	isGameOver = false;
+	resetPlayer();
+	resetScore();
+	
+	playerImg.style.visibility = "visible";
+	
+	// Flicker effect before starting
+	gameWindow.style.animation = 'glow 0.1s infinite alternate';
+	
+	setTimeout(() => {
+	    startOverlay.style.display = 'none';
+	    gameWindow.style.animation = 'glow 2s infinite alternate';
+	  }, 100); 
+	  
+	  //Restart game loop
+	  cancelAnimationFrame(animationId);
+	  animationId = requestAnimationFrame(gameLoop);
+	  
+	  updateScore(); // Start updating the score when the game starts
+	  manageKitties(); // Start managing kitties
+}
+
+
 //Listen for initial click to start game
-startButton.addEventListener('click', () => {
-  // Flicker effect before starting
-  gameWindow.style.animation = 'glow 0.1s infinite alternate';
-  
-  setTimeout(() => {
-    startOverlay.style.display = 'none';
-    gameWindow.style.animation = 'glow 2s infinite alternate';
-  }, 100); 
-  updateScore(); // Start updating the score when the game starts
-  manageKitties(); // Start managing kitties
-});
+startButton.addEventListener('click', startGame);
+
 const ground = document.getElementById('ground');
 
 // Initialize the background position
@@ -202,7 +267,7 @@ function manageKitties() {
     if (score >= 200) {
       kittySpawnInterval = 3000; // Increase frequency after 200 points
     }
-    setTimeout(manageKitties, kittySpawnInterval);
+    kittyTimeoutId = setTimeout(manageKitties, kittySpawnInterval);
   }
 }
 
@@ -219,6 +284,5 @@ document.addEventListener('DOMContentLoaded', function() {
   }, 500); // Change image every 500 milliseconds
 });
 
-
-
+retryButton.addEventListener('click', returnToStart);
 

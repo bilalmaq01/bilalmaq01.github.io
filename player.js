@@ -34,6 +34,7 @@ scoreDisplay.textContent = `Score: ${score}`;
 document.body.appendChild(scoreDisplay);
 
 let kittySpawnInterval = 5000; // Initial interval for kitty appearance (5 seconds)
+let meteorSpawnInterval = 7000; // Initial interval for meteor appearance (7 seconds)
 
 function updateScore() {
   if (!isGameOver) {
@@ -65,9 +66,15 @@ function restartGame() {
   resetKitty();
   resetScore(); // Reset score when game restarts
   startOverlay.style.display = 'none';
+
+  // Clear and restart meteor spawning
+  clearTimeout(meteorTimeoutId); // Ensure no lingering timeouts
+  meteorTimeoutId = null;
+
   animationId = requestAnimationFrame(gameLoop); // Restart the game loop
   updateScore(); // Start updating the score
   manageKitties(); // Start managing kitties
+  manageMeteors(); // Start managing meteors
 }
 
 function checkCollision() {
@@ -75,6 +82,7 @@ function checkCollision() {
 
   const playerRect = playerImg.getBoundingClientRect();
   const kitties = document.querySelectorAll('.kitty'); // Select all kitties
+  const meteors = document.querySelectorAll('.meteor'); // Select all meteors
 
   kitties.forEach((kitty) => {
     const kittyRect = kitty.getBoundingClientRect();
@@ -98,30 +106,59 @@ function checkCollision() {
 	  deathOverlay.style.display = 'flex'; // Show the ending overlay
     }
   });
+
+  meteors.forEach((meteor) => {
+    const meteorRect = meteor.getBoundingClientRect();
+
+    if (
+      playerRect.left < meteorRect.right &&
+      playerRect.right > meteorRect.left &&
+      playerRect.top < meteorRect.bottom &&
+      playerRect.bottom > meteorRect.top
+    ) {
+      // Collision with meteor detected
+      isGameOver = true; // Set the flag to prevent further checks
+	  gameStarted = false;
+	  
+	  cancelAnimationFrame(animationId); // Stop the game loop
+	  clearTimeout(scoreTimeoutId);
+	  clearTimeout(kittyTimeoutId);
+	  
+	  document.querySelectorAll('.meteor').forEach(m => m.remove()); //Stop meteor spawning
+	  
+	  deathOverlay.style.display = 'flex'; // Show the ending overlay
+    }
+  });
 }
 
 function returnToStart() {
-	//Switch overlays
-	deathOverlay.style.display = 'none';
-	startOverlay.style.display = 'flex';
-	
-	//Reset variables
-	isGameOver = false;
-	gameStarted = false;
-	resetPlayer();
-	resetScore();
-	
-	//Remove all kitties
-	document.querySelectorAll('.kitty').forEach(k => k.remove());
-	
-	cancelAnimationFrame(animationId);
-	clearTimeout(scoreTimeoutId);
-	clearTimeout(kittyTimeoutId);
-	
-	gameWindow.style.animation = '';
+  // Switch overlays
+  deathOverlay.style.display = 'none';
+  startOverlay.style.display = 'flex';
+
+  // Reset variables
+  isGameOver = false;
+  gameStarted = false;
+  resetPlayer();
+  resetScore();
+
+  // Remove all kitties and meteors
+  document.querySelectorAll('.kitty').forEach(k => k.remove());
+  document.querySelectorAll('.meteor').forEach(m => m.remove());
+
+  // Clear timeouts and animations
+  cancelAnimationFrame(animationId);
+  clearTimeout(scoreTimeoutId);
+  clearTimeout(kittyTimeoutId);
+  clearTimeout(meteorTimeoutId); // Ensure meteor timeout is cleared
+  meteorTimeoutId = null;
+
+  gameWindow.style.animation = '';
 }
 
 function gameLoop() {
+	console.log('Game loop running'); // Debugging log
+
 	//Gravity effect
 	if(playerBottom > 0 || velocityY > 0) {
 		velocityY -= gravity; //effect of gravity
@@ -157,37 +194,51 @@ function gameLoop() {
 	animationId = requestAnimationFrame(gameLoop); // Save the animation frame ID
 }
 
+// Debugging: Ensure the start button exists and is linked to the startGame function
+if (startButton) {
+  console.log('Start button found in the DOM'); // Debugging log
+  startButton.addEventListener('click', () => {
+    console.log('Start button clicked'); // Debugging log
+    if (!gameStarted && !isGameOver) {
+      console.log('Calling startGame function'); // Debugging log
+      startGame();
+    } else {
+      console.log('Game already started or is over'); // Debugging log
+    }
+  });
+} else {
+  console.error('Start button not found in the DOM'); // Debugging log
+}
 
-
-//Listen for arrow up and spacebar key presses
+// Debugging: Add logs to verify the keydown event
 document.addEventListener('keydown', function(event) {
-	
-	
-	//Don't start game until user presses Insert Token button or spacebar
-	if(event.key === " " && !gameStarted && !isGameOver) {
-		startGame();
-	 } else if(event.key === " " && isGameOver) {
-	 	returnToStart();
-	 }
+  console.log(`Key pressed: ${event.key}`); // Debugging log
+  if (event.key === " " && !gameStarted && !isGameOver) {
+    console.log('Starting game with spacebar'); // Debugging log
+    startGame();
+  } else if (event.key === " " && isGameOver) {
+    console.log('Returning to start'); // Debugging log
+    returnToStart();
+  } else {
+    console.log('Key pressed during game: ', event.key); // Debugging log
+  }
 
-	 if(!gameStarted) {
-		return;
-	 } 
+  if(!gameStarted) {
+    return;
+  } 
 	
-	//Check that arrowup or spacebar was pressed and that max jumps is not surprassed 
-	if((event.key === "ArrowUp" || event.key === " ") && jumpCount < maxJumps) {
-		velocityY = jumpStrength;
-		jumpCount++;
-	}
+  //Check that arrowup or spacebar was pressed and that max jumps is not surpassed 
+  if((event.key === "ArrowUp" || event.key === " ") && jumpCount < maxJumps) {
+    velocityY = jumpStrength;
+    jumpCount++;
+  }
 	
-	//Check that arrowdown was pressed
-	if(event.key === "ArrowDown") {
-		velocityY -= jumpStrength * 1;
-		playerImg.style.transform = "scaleY(0.5)";
-	}
-	
+  //Check that arrowdown was pressed
+  if(event.key === "ArrowDown") {
+    velocityY -= jumpStrength * 1;
+    playerImg.style.transform = "scaleY(0.5)";
+  }
 });
-
 
 //Listen for key releases
 document.addEventListener('keyup', function(event) {
@@ -202,39 +253,59 @@ document.addEventListener('keyup', function(event) {
 	}
 });
 
-
+// Ensure the startGame function resets all necessary variables
 function startGame() {
-	//Avoid double starting
-	if(gameStarted) {
-		return;
-	}
-	
-	gameStarted = true;
-	isGameOver = false;
-	resetPlayer();
-	resetScore();
-	
-	playerImg.style.visibility = "visible";
-	
-	// Flicker effect before starting
-	gameWindow.style.animation = 'glow 0.1s infinite alternate';
-	
-	setTimeout(() => {
-	    startOverlay.style.display = 'none';
-	    gameWindow.style.animation = 'glow 2s infinite alternate';
-	  }, 100); 
-	  
-	  //Restart game loop
-	  cancelAnimationFrame(animationId);
-	  animationId = requestAnimationFrame(gameLoop);
-	  
-	  updateScore(); // Start updating the score when the game starts
-	  manageKitties(); // Start managing kitties
+  console.log('startGame function called'); // Debugging log
+  if (gameStarted) {
+    console.log('Game already started, ignoring'); // Debugging log
+    return; // Avoid double starting
+  }
+
+  // Reset game state
+  gameStarted = true;
+  isGameOver = false;
+  resetPlayer();
+  resetScore();
+
+  // Debugging: Check if playerImg is visible
+  if (playerImg) {
+    playerImg.style.visibility = "visible";
+    console.log('Player image set to visible'); // Debugging log
+  } else {
+    console.error('Player image not found'); // Debugging log
+  }
+
+  // Flicker effect before starting
+  if (gameWindow) {
+    gameWindow.style.animation = 'glow 0.1s infinite alternate';
+    console.log('Game window animation started'); // Debugging log
+  } else {
+    console.error('Game window not found'); // Debugging log
+  }
+
+  setTimeout(() => {
+    if (startOverlay) {
+      startOverlay.style.display = 'none';
+      console.log('Start overlay hidden'); // Debugging log
+    } else {
+      console.error('Start overlay not found'); // Debugging log
+    }
+
+    if (gameWindow) {
+      gameWindow.style.animation = 'glow 2s infinite alternate';
+      console.log('Game window animation updated'); // Debugging log
+    }
+  }, 100);
+
+  // Restart game loop
+  cancelAnimationFrame(animationId);
+  animationId = requestAnimationFrame(gameLoop);
+  console.log('Game loop started'); // Debugging log
+
+  updateScore(); // Start updating the score when the game starts
+  manageKitties(); // Start managing kitties
+  manageMeteors(); // Start managing meteors
 }
-
-
-//Listen for initial click to start game
-startButton.addEventListener('click', startGame);
 
 const ground = document.getElementById('ground');
 
@@ -281,29 +352,43 @@ function manageKitties() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  const playerImg = document.getElementById('playerImg');
-  let currentImage = 'Frank_Motion1.png';
-  setInterval(function() {
-    if (currentImage === 'Frank_Motion1.png') {
-      currentImage = 'Frank_Motion2.png';
-    } else {
-      currentImage = 'Frank_Motion1.png';
+function spawnMeteor() {
+  const newMeteor = document.createElement('img'); // Change from 'div' to 'img'
+  newMeteor.src = 'assets/meteor.png'; // Use the meteor.png image
+  newMeteor.classList.add('meteor'); // Add a class for styling
+  newMeteor.style.position = 'absolute';
+  newMeteor.style.right = '10%';
+  newMeteor.style.bottom = '50px'; // Position right above the ground
+  newMeteor.style.width = '30px';
+  newMeteor.style.height = '30px';
+  newMeteor.style.zIndex = '6';
+  gameWindow.appendChild(newMeteor);
+
+  // Move the meteor across the screen
+  let meteorPosition = window.innerWidth + 10;
+  function moveMeteor() {
+    if (isGameOver) {
+      newMeteor.remove(); // Remove meteor if the game is over
+      return;
     }
-    playerImg.src = `assets/${currentImage}`;
-  }, 500); // Change image every 500 milliseconds
-});
+    meteorPosition -= 3; // Adjust speed
+    if (meteorPosition > -50) {
+      newMeteor.style.left = `${meteorPosition}px`;
+      requestAnimationFrame(moveMeteor);
+    } else {
+      newMeteor.remove(); // Remove meteor after it leaves the screen
+    }
+  }
+  moveMeteor();
+}
 
-retryButton.addEventListener('click', returnToStart);
-
-window.addEventListener('load', () => {
-	const bootOverlay = document.getElementById('bootScreenOverlay');
-	  if (!bootOverlay) return;
-
-	  gameWindow.classList.add('crtScanlines');
-
-	  setTimeout(() => {
-	    bootOverlay.remove();
-	    gameWindow.classList.remove('crtScanlines');
-	  }, 3000); 
-});
+function manageMeteors() {
+	if (!isGameOver) {
+	  spawnMeteor(); // Spawns a new meteor
+	  if (score >= 200) {
+		meteorSpawnInterval = 4000; // Adjust spawn interval after 200 points
+	  }
+	  console.log(`Next meteor in ${meteorSpawnInterval}ms`); // Debugging log
+	  meteorTimeoutId = setTimeout(manageMeteors, meteorSpawnInterval); // Schedules the next meteor spawn
+	}
+  }

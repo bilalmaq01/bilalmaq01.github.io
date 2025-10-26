@@ -29,10 +29,10 @@ A retro-style endless runner game inspired by the Chrome Dino, but with a space 
 
 ## Credits
 
-Jessica  
-Andrea  
-Hunter  
-Baliul  
+Jessica Allen  
+Andrea Figueroa  
+Hunter Griffith  
+Bilal Maqsood  
 
 ## License
 

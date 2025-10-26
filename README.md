@@ -1,4 +1,4 @@
-# Space Cowboy Runner
+# Rowdy Runner
 
 This is a project for Rowdy Hacks Hackathon 2025.
 
@@ -29,11 +29,11 @@ A retro-style endless runner game inspired by the Chrome Dino, but with a space 
 
 ## Credits
 
-Jessica
-Andrea
-Hunter
-Baliul
+Jessica  
+Andrea  
+Hunter  
+Baliul  
 
 ## License
 
-MIT Linense
+MIT License

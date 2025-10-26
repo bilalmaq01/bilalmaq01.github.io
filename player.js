@@ -4,7 +4,7 @@ const startButton = document.getElementById('startButton');
 const startOverlay = document.getElementById('startOverlay');
 const deathOverlay = document.getElementById('deathOverlay');
 const retryButton = document.getElementById('retryButton');
-
+const skyback = document.getElementById('skyback');
 
 let gameStarted = false;
 let jumpCount = 0;
@@ -142,14 +142,22 @@ function gameLoop() {
 		
 		//Change position of the player
 		playerImg.style.bottom = `${playerBottom}px`;
+		
 	}
+	
+	//Background movement
+	backgroundPosition -= 2; 
+	const groundWidth = 65;
+	backgroundPosition = backgroundPosition % groundWidth;
+	ground.style.backgroundPosition = `${backgroundPosition}px 0`;
+	skyback.style.backgroundPosition = `${backgroundPosition / 2}px 0`;
 	
 	checkCollision(); // Check for collision in each frame
 
 	animationId = requestAnimationFrame(gameLoop); // Save the animation frame ID
 }
 
-gameLoop();
+
 
 //Listen for arrow up and spacebar key presses
 document.addEventListener('keydown', function(event) {

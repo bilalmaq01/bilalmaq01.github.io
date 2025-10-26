@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Function to animate the ground, skyback, and kitty
-    function animateScene() {
+   /* function animateScene() {
         if (isGameOver) return; // Skip animation if the game is over
 
         // Move the ground and skyback
@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Keep the animation running
         animationId = requestAnimationFrame(animateScene); // Save the animation frame ID
-    }
+    }*/
 
     // Add click event listener to the start button
     startButton.addEventListener('click', () => {

@@ -1,12 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Select the ground, kitty, and start button elements
+    // Select the ground, skyback, kitty, and start button elements
     const ground = document.getElementById('ground');
+    const skyback = document.getElementById('skyback'); // Select the skyback
     const kitty = document.getElementById('kittyImg');
     const startButton = document.getElementById('startButton');
 
     // Check if the elements exist
-    if (!ground || !kitty || !startButton) {
-        console.error('Ground, Kitty, or Start Button element not found!');
+    if (!ground || !skyback || !kitty || !startButton) {
+        console.error('Ground, Skyback, Kitty, or Start Button element not found!');
         return;
     }
 
@@ -20,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
         backgroundPosition = 0;
         kittyPosition = window.innerWidth + 10;
         ground.style.backgroundPosition = `${backgroundPosition}px 0`;
+        skyback.style.backgroundPosition = `${backgroundPosition}px 0`; // Reset skyback position
         kitty.style.left = `${kittyPosition}px`;
     }
 
@@ -29,13 +31,14 @@ document.addEventListener('DOMContentLoaded', () => {
         animationId = requestAnimationFrame(animateScene); // Restart the animation
     }
 
-    // Function to animate the ground and kitty
+    // Function to animate the ground, skyback, and kitty
     function animateScene() {
         if (isGameOver) return; // Skip animation if the game is over
 
-        // Move the ground
+        // Move the ground and skyback
         backgroundPosition -= 2; // Adjust speed by changing this value
         ground.style.backgroundPosition = `${backgroundPosition}px 0`;
+        skyback.style.backgroundPosition = `${backgroundPosition}px 0`; // Move skyback
 
         // Move the kitty toward the player
         kittyPosition -= 2; // Same speed as the ground

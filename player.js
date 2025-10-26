@@ -67,23 +67,28 @@ function checkCollision() {
   if (isGameOver) return; // Skip collision checks if the game is over
 
   const playerRect = playerImg.getBoundingClientRect();
-  const kittyRect = document.querySelector('#kittyImg').getBoundingClientRect();
+  const kitties = document.querySelectorAll('.kitty'); // Select all kitties
 
-  if (
-    playerRect.left < kittyRect.right &&
-    playerRect.right > kittyRect.left &&
-    playerRect.top < kittyRect.bottom &&
-    playerRect.bottom > kittyRect.top
-  ) {
-    // Collision detected
-    isGameOver = true; // Set the flag to prevent further checks
-    cancelAnimationFrame(animationId); // Stop the game loop
-    startOverlay.style.display = 'flex'; // Show the start overlay
-    setTimeout(() => {
-      isGameOver = false; // Reset the flag
-      restartGame();
-    }, 2000); // Restart the game after a delay
-  }
+  kitties.forEach((kitty) => {
+    const kittyRect = kitty.getBoundingClientRect();
+
+    if (
+      playerRect.left < kittyRect.right &&
+      playerRect.right > kittyRect.left &&
+      playerRect.top < kittyRect.bottom &&
+      playerRect.bottom > kittyRect.top
+    ) {
+      // Collision detected
+      isGameOver = true; // Set the flag to prevent further checks
+      cancelAnimationFrame(animationId); // Stop the game loop
+      startOverlay.style.display = 'flex'; // Show the start overlay
+
+      // Reload the page after a delay
+      setTimeout(() => {
+        window.location.reload(true); // Reload the page
+      }, 2000); // Restart the game after a delay
+    }
+  });
 }
 
 function gameLoop() {
@@ -200,18 +205,6 @@ function manageKitties() {
     setTimeout(manageKitties, kittySpawnInterval);
   }
 }
-document.addEventListener('DOMContentLoaded', function() {
-  const playerImg = document.getElementById('playerImg');
-  let currentImage = 'Frank_Motion1.png';
-  setInterval(function() {
-    if (currentImage === 'Frank_Motion1.png') {
-      currentImage = 'Frank_Motion2.png';
-    } else {
-      currentImage = 'Frank_Motion1.png';
-    }
-    playerImg.src = `assets/${currentImage}`;
-  }, 500); // Change image every 500 milliseconds
-});
 
 
 

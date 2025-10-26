@@ -307,4 +307,3 @@ window.addEventListener('load', () => {
 	    gameWindow.classList.remove('crtScanlines');
 	  }, 3000); 
 });
-

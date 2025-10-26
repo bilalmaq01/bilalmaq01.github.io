@@ -38,6 +38,8 @@ scoreDisplay.textContent = `Score: ${score}`;
 document.body.appendChild(scoreDisplay);
 
 let kittySpawnInterval = 5000; // Initial interval for kitty appearance (5 seconds)
+let meteorSpawnInterval = 7000; // Initial interval for meteor appearance (7 seconds)
+
 
 function updateScore() {
   if (!isGameOver) {
@@ -72,9 +74,13 @@ function restartGame() {
   playerImg.style.visibility = "visible";
   blackOverlay.style.display = 'none';
   startOverlay.style.display = 'none';
+  // Clear and restart meteor spawning
+    clearTimeout(meteorTimeoutId); // Ensure no lingering timeouts
+    meteorTimeoutId = null;
   animationId = requestAnimationFrame(gameLoop); // Restart the game loop
   updateScore(); // Start updating the score
   manageKitties(); // Start managing kitties
+  manageMeteors(); // Start managing meteors
 }
 
 function checkCollision() {
@@ -82,7 +88,8 @@ function checkCollision() {
 
   const playerRect = playerImg.getBoundingClientRect();
   const kitties = document.querySelectorAll('.kitty'); // Select all kitties
-
+  const meteors = document.querySelectorAll('.meteor'); // Select all meteors
+  
   kitties.forEach((kitty) => {
     const kittyRect = kitty.getBoundingClientRect();
 
@@ -105,30 +112,59 @@ function checkCollision() {
 	  deathOverlay.style.display = 'flex'; // Show the ending overlay
     }
   });
+  
+  meteors.forEach((meteor) => {
+      const meteorRect = meteor.getBoundingClientRect();
+
+      if (
+        playerRect.left < meteorRect.right &&
+        playerRect.right > meteorRect.left &&
+        playerRect.top < meteorRect.bottom &&
+        playerRect.bottom > meteorRect.top
+      ) {
+        // Collision with meteor detected
+        isGameOver = true; // Set the flag to prevent further checks
+  	  gameStarted = false;
+  	  
+  	  cancelAnimationFrame(animationId); // Stop the game loop
+  	  clearTimeout(scoreTimeoutId);
+  	  clearTimeout(kittyTimeoutId);
+  	  
+  	  document.querySelectorAll('.meteor').forEach(m => m.remove()); //Stop meteor spawning
+  	  
+  	  deathOverlay.style.display = 'flex'; // Show the ending overlay
+      }
+    });
 }
 
 function returnToStart() {
-	//Switch overlays
-	deathOverlay.style.display = 'none';
-	startOverlay.style.display = 'flex';
-	
-	//Reset variables
-	isGameOver = false;
-	gameStarted = false;
-	resetPlayer();
-	resetScore();
-	
-	//Remove all kitties
-	document.querySelectorAll('.kitty').forEach(k => k.remove());
-	
-	cancelAnimationFrame(animationId);
-	clearTimeout(scoreTimeoutId);
-	clearTimeout(kittyTimeoutId);
-	
-	gameWindow.style.animation = '';
+	// Switch overlays
+	  deathOverlay.style.display = 'none';
+	  startOverlay.style.display = 'flex';
+
+	  // Reset variables
+	  isGameOver = false;
+	  gameStarted = false;
+	  resetPlayer();
+	  resetScore();
+
+	  // Remove all kitties and meteors
+	  document.querySelectorAll('.kitty').forEach(k => k.remove());
+	  document.querySelectorAll('.meteor').forEach(m => m.remove());
+
+	  // Clear timeouts and animations
+	  cancelAnimationFrame(animationId);
+	  clearTimeout(scoreTimeoutId);
+	  clearTimeout(kittyTimeoutId);
+	  clearTimeout(meteorTimeoutId); // Ensure meteor timeout is cleared
+	  meteorTimeoutId = null;
+
+	  gameWindow.style.animation = '';
 }
 
 function gameLoop() {
+	console.log('Game loop running'); // Debugging log
+	
 	//Gravity effect
 	if(playerBottom > 0 || velocityY > 0) {
 		velocityY -= gravity; //effect of gravity
@@ -245,6 +281,7 @@ function startGame() {
 	  randomGlow();
 	  updateScore(); // Start updating the score when the game starts
 	  manageKitties(); // Start managing kitties
+	  manageMeteors(); // Start managing meteors
 }
 
 
@@ -374,3 +411,46 @@ introVideo.addEventListener('ended', () => {
 	    startOverlay.classList.add('visible');
 	    introVideo.style.display = 'none';
 });
+
+
+
+function spawnMeteor() {
+  const newMeteor = document.createElement('img'); // Change from 'div' to 'img'
+  newMeteor.src = 'assets/meteor.png'; // Use the meteor.png image
+  newMeteor.classList.add('meteor'); // Add a class for styling
+  newMeteor.style.position = 'absolute';
+  newMeteor.style.right = '10%';
+  newMeteor.style.bottom = '50px'; // Position right above the ground
+  newMeteor.style.width = '30px';
+  newMeteor.style.height = '30px';
+  newMeteor.style.zIndex = '6';
+  gameWindow.appendChild(newMeteor);
+
+  // Move the meteor across the screen
+  let meteorPosition = window.innerWidth + 10;
+  function moveMeteor() {
+    if (isGameOver) {
+      newMeteor.remove(); // Remove meteor if the game is over
+      return;
+    }
+    meteorPosition -= 3; // Adjust speed
+    if (meteorPosition > -50) {
+      newMeteor.style.left = `${meteorPosition}px`;
+      requestAnimationFrame(moveMeteor);
+    } else {
+		newMeteor.remove(); // Remove meteor after it leaves the screen
+	}
+	}
+	  moveMeteor();
+	}
+	
+	function manageMeteors() {
+		if (!isGameOver) {
+		  spawnMeteor(); // Spawns a new meteor
+		  if (score >= 200) {
+			meteorSpawnInterval = 4000; // Adjust spawn interval after 200 points
+		  }
+		  console.log(`Next meteor in ${meteorSpawnInterval}ms`); // Debugging log
+		  meteorTimeoutId = setTimeout(manageMeteors, meteorSpawnInterval); // Schedules the next meteor spawn
+		}
+	  }

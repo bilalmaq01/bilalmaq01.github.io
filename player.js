@@ -153,6 +153,8 @@ gameLoop();
 
 //Listen for arrow up and spacebar key presses
 document.addEventListener('keydown', function(event) {
+	
+	
 	//Don't start game until user presses Insert Token button or spacebar
 	if(event.key === " " && !gameStarted && !isGameOver) {
 		startGame();

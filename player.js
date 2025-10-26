@@ -200,6 +200,18 @@ function manageKitties() {
     setTimeout(manageKitties, kittySpawnInterval);
   }
 }
+document.addEventListener('DOMContentLoaded', function() {
+  const playerImg = document.getElementById('playerImg');
+  let currentImage = 'Frank_Motion1.png';
+  setInterval(function() {
+    if (currentImage === 'Frank_Motion1.png') {
+      currentImage = 'Frank_Motion2.png';
+    } else {
+      currentImage = 'Frank_Motion1.png';
+    }
+    playerImg.src = `assets/${currentImage}`;
+  }, 500); // Change image every 500 milliseconds
+});
 
 
 
